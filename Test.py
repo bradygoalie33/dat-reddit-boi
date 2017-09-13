@@ -5,6 +5,13 @@ from praw.models import MoreComments
 
 import requests
 import json
+import os
+import sys
+
+#gets shit from other classes when Test.py exists outside of src
+sys.path.append(os.path.join(sys.path[0], 'src'))
+
+from database import execute_query
 
 reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      client_secret='_2lWTM5i_USFV4Aynn_k_p-ySOo',

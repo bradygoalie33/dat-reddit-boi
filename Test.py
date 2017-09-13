@@ -37,7 +37,3 @@ for id in subredditIds:
             continue
         print(top_level_comment.body)
     print("END OF CURRENT COMMENT TREE\n")
-
-
-
-

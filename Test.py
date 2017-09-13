@@ -11,6 +11,7 @@ import sys
 #gets shit from other classes when Test.py exists outside of src
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
+#example of importing a method from database
 from database import execute_query
 
 reddit = praw.Reddit(client_id='El479iqdfj-v0g',

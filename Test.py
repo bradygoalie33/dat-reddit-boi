@@ -25,9 +25,9 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
 
 
 
-scheduler = sched.scheduler(time.time, time.sleep)
+starttime = time.time()
 
-def grabInformation(sched):
+def grabInformation():
     subredditIds = []
     # This section grabs info from the subreddit /r/funny and displays info about it
     funny = reddit.subreddit('funny')
@@ -51,7 +51,8 @@ def grabInformation(sched):
             for third_level_comment in second_level_comment.replies:
                 print("THIRD: " + third_level_comment.body)
     print("\n")
-    sched.enter(15, 1, grabInformation, (sched,))
 
-scheduler.enter(15, 1, grabInformation, (scheduler,))
-scheduler.run()
+
+while True:
+    grabInformation()
+    time.sleep(60.0 -((time.time() - starttime) % 60.0))

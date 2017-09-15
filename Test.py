@@ -7,6 +7,7 @@ import requests
 import json
 import os
 import sys
+import sched, time
 
 #gets shit from other classes when Test.py exists outside of src
 sys.path.append(os.path.join(sys.path[0], 'src'))
@@ -20,28 +21,37 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      user_agent='testscript by /u/EverestAtlas',
                      username='EverestAtlas')
 
-print(reddit.user.me())
+# print(reddit.user.me())
 
 
-subredditIds = []
 
-# This section grabs info from the subreddit /r/funny and displays info about it
-funny = reddit.subreddit('funny')
-for submission in funny.hot(limit=25):
-    print(submission.title)
-    print(submission.score)
-    print(submission.id)
-    subredditIds.append(submission.id)
-    print(submission.url)
-    print(submission.author)
-    print("\n")
+scheduler = sched.scheduler(time.time, time.sleep)
 
-# This section goes through all the posts I've gotten from above and grabs the top level comments from each one
-print("Comments Here: ")
-for id in subredditIds:
-    submission = reddit.submission(id=id)
+def grabInformation(sched):
+    subredditIds = []
+    # This section grabs info from the subreddit /r/funny and displays info about it
+    funny = reddit.subreddit('funny')
+    for submission in funny.hot(limit=2):
+        print(submission.title)
+        print(submission.author)
+        print(submission.score)
+        print(submission.id)
+        subredditIds.append(submission.id)
+        print(submission.url)
+        print("\n")
+
+    # This section goes through all the posts I've gotten from above and grabs the top level comments from each one
+    print("Comments Here: ")
+
+    submission.comments.replace_more(limit=0)
     for top_level_comment in submission.comments:
-        if isinstance(top_level_comment, MoreComments):
-            continue
-        print(top_level_comment.body)
-    print("END OF CURRENT COMMENT TREE\n")
+        print("TOP: " + top_level_comment.body)
+        for second_level_comment in top_level_comment.replies:
+            print("\nSECOND: " + second_level_comment.body)
+            for third_level_comment in second_level_comment.replies:
+                print("THIRD: " + third_level_comment.body)
+    print("\n")
+    sched.enter(15, 1, grabInformation, (sched,))
+
+scheduler.enter(15, 1, grabInformation, (scheduler,))
+scheduler.run()

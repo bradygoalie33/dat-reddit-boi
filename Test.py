@@ -46,6 +46,7 @@ def grabInformation(incomingSubreddit):
         # print(submission.url)
         # print("\n")
 
+
     # This section goes through all the posts I've gotten from above and grabs the top level comments from each one
     # print("Comments Here: ")
     #

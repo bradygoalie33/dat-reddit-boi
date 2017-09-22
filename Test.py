@@ -47,27 +47,47 @@ def grabInformation(incomingSubreddit):
     print('"all_posts": {')
     selectedReddit = reddit.subreddit(incomingSubreddit)
     for submission in selectedReddit.hot(limit=NUM_OF_POSTS_TO_GRAB):
+        global submissionsCount
+        submissionsCount += 1
 
-        print('"post": {')
+        print('"post'+ str(submissionsCount) +'": {')
+
         print('"title":"' + str(submission.title) + '",')
         print('"author":"' + str(submission.author) + '",')
         print('"score":"' + str(submission.score) + '",')
         print('"id":"' + str(submission.id) + '",')
         print('"url":"' + str(submission.url) + '",')
-        # subredditSubmissions.append(submission)
         submission.comments.replace_more(limit=0)
-        print('"comments": {')
+        print('"all_comments": {')
         for top_level_comment in submission.comments:
-            newComment = Comment.TopLevelComment(top_level_comment)
-            # print("{")
+            global topCommentCount
+            topCommentCount += 1
+
+            print('"comment'+ str(topCommentCount) +'": {')
+
             print('"author":"' + str(top_level_comment.author) +'",')
-            for second_level_comment in top_level_comment.replies:
-                if (second_level_comment.score > 0):
-                    newComment.commentChildren.append(second_level_comment)
+            print('"score":"' + str(top_level_comment.score) + '",')
+            print('"id":"' + str(top_level_comment.id) + '",')
+            formattedBody = top_level_comment.body.replace("'", "")
+            formattedBody = formattedBody.replace('"', '')
+            formattedBody = formattedBody.replace('\n', '').replace('\r', '')
+            print('"body":"' + str(formattedBody) + '"')
+
+            # for second_level_comment in top_level_comment.replies:
+            #     if (second_level_comment.score > 0):
                     #     for third_level_comment in second_level_comment.replies:
                     #         print("THIRD: " + third_level_comment.body)
-        print("}}")
-    print("}}}]}")
+            if topCommentCount == len(submission.comments):
+                print('}')
+                topCommentCount = 0
+            else:
+                print('},')
+        if(submissionsCount == NUM_OF_POSTS_TO_GRAB):
+            print('}}')
+            submissionsCount = 0
+        else:
+            print('}},')
+    print('}}}]}')
 
 
 

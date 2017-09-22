@@ -15,6 +15,7 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 SCHEDULE_TIME = 60.0 * 15.0
 SELECTED_SUBREDDITS = ['funny', 'pics', 'gaming', 'aww', 'mildlyinteresting']
 SINGLE_SUBREDDIT = ['pubattlegrounds']
+DOUBLE_SUBREDDIT = ['funny', 'pics']
 NUM_OF_POSTS_TO_GRAB = 1
 #example of importing a method from database
 # from src import database
@@ -27,7 +28,7 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      username='EverestAtlas')
 
 # print(reddit.user.me())
-
+subredditCount = 0
 submissionsCount = 0
 topCommentCount = 0
 secondCommentCount = 0
@@ -38,10 +39,12 @@ def grabInformation(incomingSubreddit):
     # file = open(str(round(time.time())) + ".txt", "w")
 
     subredditSubmissions = []
-    print("{")
-    print('"Reddit_Object":[')
-    print("{")
-    print('"subreddit": {')
+    # print("{")
+    # print('"Reddit_Object":[')
+    # print("{")
+    global subredditCount
+    subredditCount += 1
+    print('"subreddit'+ str(subredditCount) +'": {')
     print('"name": "/r/' + incomingSubreddit +'",')
     print('"all_posts": {')
     selectedReddit = reddit.subreddit(incomingSubreddit)
@@ -125,11 +128,17 @@ def grabInformation(incomingSubreddit):
             submissionsCount = 0
         else:
             print('}},')
-    print('}}}]}')
-
+    if subredditCount == len(DOUBLE_SUBREDDIT):
+        print('}}')
+    else:
+        print('}},')
 
 
 while True:
-    for sub in SINGLE_SUBREDDIT:
+    print("{")
+    print('"Reddit_Object":[')
+    print("{")
+    for sub in DOUBLE_SUBREDDIT:
         grabInformation(sub)
+    print('}]}')
     time.sleep(SCHEDULE_TIME -((time.time() - starttime) % SCHEDULE_TIME))

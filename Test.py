@@ -15,7 +15,7 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 SCHEDULE_TIME = 60.0 * 15.0
 SELECTED_SUBREDDITS = ['funny', 'pics', 'gaming', 'aww', 'mildlyinteresting']
 SINGLE_SUBREDDIT = ['pubattlegrounds']
-NUM_OF_POSTS_TO_GRAB = 2
+NUM_OF_POSTS_TO_GRAB = 1
 #example of importing a method from database
 # from src import database
 from src import Comment
@@ -38,7 +38,6 @@ def grabInformation(incomingSubreddit):
     # file = open(str(round(time.time())) + ".txt", "w")
 
     subredditSubmissions = []
-    # This section grabs info from the subreddit /r/funny and displays info about it
     print("{")
     print('"Reddit_Object":[')
     print("{")
@@ -71,12 +70,30 @@ def grabInformation(incomingSubreddit):
             formattedBody = top_level_comment.body.replace("'", "")
             formattedBody = formattedBody.replace('"', '')
             formattedBody = formattedBody.replace('\n', '').replace('\r', '')
-            print('"body":"' + str(formattedBody) + '"')
+            print('"body":"' + str(formattedBody) + '",')
+            print('"second_level_comments": {')
+            if len(top_level_comment.replies) == 0:
+                print('}')
+            for second_level_comment in top_level_comment.replies:
+                global secondCommentCount
+                secondCommentCount += 1
 
-            # for second_level_comment in top_level_comment.replies:
-            #     if (second_level_comment.score > 0):
+                print('"comment' + str(secondCommentCount) + '": {')
+
+                print('"author":"' + str(second_level_comment.author) + '",')
+                print('"score":"' + str(second_level_comment.score) + '",')
+                print('"id":"' + str(second_level_comment.id) + '",')
+                formattedBody = second_level_comment.body.replace("'", "")
+                formattedBody = formattedBody.replace('"', '')
+                formattedBody = formattedBody.replace('\n', '').replace('\r', '')
+                print('"body":"' + str(formattedBody) + '"')
                     #     for third_level_comment in second_level_comment.replies:
                     #         print("THIRD: " + third_level_comment.body)
+                if secondCommentCount == len(top_level_comment.replies):
+                    print('}}')
+                    secondCommentCount = 0
+                else:
+                    print('},')
             if topCommentCount == len(submission.comments):
                 print('}')
                 topCommentCount = 0

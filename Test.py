@@ -15,6 +15,7 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 SCHEDULE_TIME = 60.0 * 15.0
 SELECTED_SUBREDDITS = ['funny', 'pics', 'gaming', 'aww', 'mildlyinteresting']
 SINGLE_SUBREDDIT = ['pubattlegrounds']
+NUM_OF_POSTS_TO_GRAB = 2
 #example of importing a method from database
 # from src import database
 from src import Comment
@@ -27,7 +28,10 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
 
 # print(reddit.user.me())
 
-
+submissionsCount = 0
+topCommentCount = 0
+secondCommentCount = 0
+thirdCommentCount = 0
 
 starttime = time.time()
 def grabInformation(incomingSubreddit):
@@ -35,33 +39,36 @@ def grabInformation(incomingSubreddit):
 
     subredditSubmissions = []
     # This section grabs info from the subreddit /r/funny and displays info about it
+    print("{")
+    print('"Reddit_Object":[')
+    print("{")
+    print('"subreddit": {')
+    print('"name": "/r/' + incomingSubreddit +'",')
+    print('"all_posts": {')
     selectedReddit = reddit.subreddit(incomingSubreddit)
-    for submission in selectedReddit.hot(limit=2):
-        # print('/r/' + incomingSubreddit)
-        # print(submission.title)
-        # print(submission.author)
-        # print(submission.score)
-        # print(submission.id)
-        subredditSubmissions.append(submission)
-        # print(submission.url)
-        # print("\n")
+    for submission in selectedReddit.hot(limit=NUM_OF_POSTS_TO_GRAB):
 
+        print('"post": {')
+        print('"title":"' + str(submission.title) + '",')
+        print('"author":"' + str(submission.author) + '",')
+        print('"score":"' + str(submission.score) + '",')
+        print('"id":"' + str(submission.id) + '",')
+        print('"url":"' + str(submission.url) + '",')
+        # subredditSubmissions.append(submission)
+        submission.comments.replace_more(limit=0)
+        print('"comments": {')
+        for top_level_comment in submission.comments:
+            newComment = Comment.TopLevelComment(top_level_comment)
+            # print("{")
+            print('"author":"' + str(top_level_comment.author) +'",')
+            for second_level_comment in top_level_comment.replies:
+                if (second_level_comment.score > 0):
+                    newComment.commentChildren.append(second_level_comment)
+                    #     for third_level_comment in second_level_comment.replies:
+                    #         print("THIRD: " + third_level_comment.body)
+        print("}}")
+    print("}}}]}")
 
-    # This section goes through all the posts I've gotten from above and grabs the top level comments from each one
-    # print("Comments Here: ")
-    #
-    submission.comments.replace_more(limit=0)
-    for top_level_comment in submission.comments:
-        newComment = Comment.TopLevelComment(top_level_comment)
-        # print(newComment.printout())
-        # print(top_level_comment.author)
-        for second_level_comment in top_level_comment.replies:
-            newComment.commentChildren.append(second_level_comment)
-            # print("\nSECOND: " + second_level_comment.body)
-        #     for third_level_comment in second_level_comment.replies:
-        #         print("THIRD: " + third_level_comment.body)
-    print("\nTREE: " + str(len(newComment.commentChildren)))
-    # file.close()
 
 
 while True:

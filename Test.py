@@ -86,9 +86,30 @@ def grabInformation(incomingSubreddit):
                 formattedBody = second_level_comment.body.replace("'", "")
                 formattedBody = formattedBody.replace('"', '')
                 formattedBody = formattedBody.replace('\n', '').replace('\r', '')
-                print('"body":"' + str(formattedBody) + '"')
-                    #     for third_level_comment in second_level_comment.replies:
-                    #         print("THIRD: " + third_level_comment.body)
+                print('"body":"' + str(formattedBody) + '",')
+                print('"third_level_comments": {')
+                if len(second_level_comment.replies) == 0:
+                    print('}')
+                #
+                for third_level_comment in second_level_comment.replies:
+                    global thirdCommentCount
+                    thirdCommentCount += 1
+
+                    print('"comment' + str(thirdCommentCount) + '": {')
+
+                    print('"author":"' + str(third_level_comment.author) + '",')
+                    print('"score":"' + str(third_level_comment.score) + '",')
+                    print('"id":"' + str(third_level_comment.id) + '",')
+                    formattedBody = third_level_comment.body.replace("'", "")
+                    formattedBody = formattedBody.replace('"', '')
+                    formattedBody = formattedBody.replace('\n', '').replace('\r', '')
+                    print('"body":"' + str(formattedBody) + '"')
+                    if thirdCommentCount == len(second_level_comment.replies):
+                        print('}}')
+                        thirdCommentCount = 0
+                    else:
+                        print('},')
+                #
                 if secondCommentCount == len(top_level_comment.replies):
                     print('}}')
                     secondCommentCount = 0

@@ -16,7 +16,7 @@ SCHEDULE_TIME = 60.0 * 15.0
 SELECTED_SUBREDDITS = ['funny', 'pics', 'gaming', 'aww', 'mildlyinteresting']
 SINGLE_SUBREDDIT = ['pubattlegrounds']
 DOUBLE_SUBREDDIT = ['funny', 'pics']
-NUM_OF_POSTS_TO_GRAB = 1
+NUM_OF_POSTS_TO_GRAB = 2
 #example of importing a method from database
 # from src import database
 from src import Comment
@@ -27,7 +27,6 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      user_agent='testscript by /u/EverestAtlas',
                      username='EverestAtlas')
 
-# print(reddit.user.me())
 subredditCount = 0
 submissionsCount = 0
 topCommentCount = 0
@@ -38,10 +37,6 @@ starttime = time.time()
 def grabInformation(incomingSubreddit):
     # file = open(str(round(time.time())) + ".txt", "w")
 
-    subredditSubmissions = []
-    # print("{")
-    # print('"Reddit_Object":[')
-    # print("{")
     global subredditCount
     subredditCount += 1
     print('"subreddit'+ str(subredditCount) +'": {')
@@ -72,8 +67,8 @@ def grabInformation(incomingSubreddit):
             print('"id":"' + str(top_level_comment.id) + '",')
             formattedBody = top_level_comment.body.replace("'", "")
             formattedBody = formattedBody.replace('"', '')
-            formattedBody = formattedBody.replace('\n', '').replace('\r', '')
-            print('"body":"' + str(formattedBody) + '",')
+            formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
+            print('"body":" ' + str(formattedBody) + ' ",')
             print('"second_level_comments": {')
             if len(top_level_comment.replies) == 0:
                 print('}')
@@ -88,8 +83,8 @@ def grabInformation(incomingSubreddit):
                 print('"id":"' + str(second_level_comment.id) + '",')
                 formattedBody = second_level_comment.body.replace("'", "")
                 formattedBody = formattedBody.replace('"', '')
-                formattedBody = formattedBody.replace('\n', '').replace('\r', '')
-                print('"body":"' + str(formattedBody) + '",')
+                formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
+                print('"body":" ' + str(formattedBody) + ' ",')
                 print('"third_level_comments": {')
                 if len(second_level_comment.replies) == 0:
                     print('}')
@@ -105,8 +100,8 @@ def grabInformation(incomingSubreddit):
                     print('"id":"' + str(third_level_comment.id) + '",')
                     formattedBody = third_level_comment.body.replace("'", "")
                     formattedBody = formattedBody.replace('"', '')
-                    formattedBody = formattedBody.replace('\n', '').replace('\r', '')
-                    print('"body":"' + str(formattedBody) + '"')
+                    formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
+                    print('"body":" ' + str(formattedBody) + ' "')
                     if thirdCommentCount == len(second_level_comment.replies):
                         print('}}')
                         thirdCommentCount = 0
@@ -128,7 +123,8 @@ def grabInformation(incomingSubreddit):
             submissionsCount = 0
         else:
             print('}},')
-    if subredditCount == len(DOUBLE_SUBREDDIT):
+    # The array used in this needs to be the same as the one in the while loop
+    if subredditCount == len(SELECTED_SUBREDDITS):
         print('}}')
     else:
         print('}},')
@@ -138,7 +134,7 @@ while True:
     print("{")
     print('"Reddit_Object":[')
     print("{")
-    for sub in DOUBLE_SUBREDDIT:
+    for sub in SELECTED_SUBREDDITS:
         grabInformation(sub)
     print('}]}')
     time.sleep(SCHEDULE_TIME -((time.time() - starttime) % SCHEDULE_TIME))

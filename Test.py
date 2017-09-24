@@ -48,9 +48,10 @@ def grabInformation(incomingSubreddit):
         submissionsCount += 1
 
         print('"post'+ str(submissionsCount) +'": {')
-
+        # This is the actual meat of the post
         print('"title":"' + str(submission.title) + '",')
         print('"author":"' + str(submission.author) + '",')
+        print('"time":"' + str(submission.created) + '",')
         print('"score":"' + str(submission.score) + '",')
         print('"id":"' + str(submission.id) + '",')
         print('"url":"' + str(submission.url) + '",')
@@ -63,6 +64,7 @@ def grabInformation(incomingSubreddit):
             print('"comment'+ str(topCommentCount) +'": {')
 
             print('"author":"' + str(top_level_comment.author) +'",')
+            print('"time":"' + str(top_level_comment.created) + '",')
             print('"score":"' + str(top_level_comment.score) + '",')
             print('"id":"' + str(top_level_comment.id) + '",')
             formattedBody = top_level_comment.body.replace("'", "")
@@ -79,6 +81,7 @@ def grabInformation(incomingSubreddit):
                 print('"comment' + str(secondCommentCount) + '": {')
 
                 print('"author":"' + str(second_level_comment.author) + '",')
+                print('"time":"' + str(second_level_comment.created) + '",')
                 print('"score":"' + str(second_level_comment.score) + '",')
                 print('"id":"' + str(second_level_comment.id) + '",')
                 formattedBody = second_level_comment.body.replace("'", "")
@@ -88,7 +91,6 @@ def grabInformation(incomingSubreddit):
                 print('"third_level_comments": {')
                 if len(second_level_comment.replies) == 0:
                     print('}')
-                #
                 for third_level_comment in second_level_comment.replies:
                     global thirdCommentCount
                     thirdCommentCount += 1
@@ -96,6 +98,7 @@ def grabInformation(incomingSubreddit):
                     print('"comment' + str(thirdCommentCount) + '": {')
 
                     print('"author":"' + str(third_level_comment.author) + '",')
+                    print('"time":"' + str(third_level_comment.created) + '",')
                     print('"score":"' + str(third_level_comment.score) + '",')
                     print('"id":"' + str(third_level_comment.id) + '",')
                     formattedBody = third_level_comment.body.replace("'", "")

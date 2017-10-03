@@ -1,9 +1,5 @@
-from pprint import pprint
-import numpy
 import praw as praw
 from praw.models import MoreComments
-import requests
-import json
 import os
 import sys
 import sched, time
@@ -11,22 +7,23 @@ import sched, time
 #gets shit from other classes when Test.py exists outside of src
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
+SAVE_FILE_PATH = 'data/'
 # This is equal to 15 minutes
 SCHEDULE_TIME = 60.0 * 15.0
 SELECTED_SUBREDDITS = ['funny', 'pics', 'gaming', 'aww', 'mildlyinteresting']
+# These two are for testing purposes
 SINGLE_SUBREDDIT = ['pubattlegrounds']
 DOUBLE_SUBREDDIT = ['funny', 'pics']
+#
 NUM_OF_POSTS_TO_GRAB = 2
 #example of importing a method from database
-# from src import database
-from src import Comment
 
 reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      client_secret='_2lWTM5i_USFV4Aynn_k_p-ySOo',
                      password='TeamHandsome',
                      user_agent='testscript by /u/EverestAtlas',
                      username='EverestAtlas')
-
+jsonString = ''
 subredditCount = 0
 submissionsCount = 0
 topCommentCount = 0
@@ -34,110 +31,119 @@ secondCommentCount = 0
 thirdCommentCount = 0
 
 starttime = time.time()
-def grabInformation(incomingSubreddit):
-    # file = open(str(round(time.time())) + ".txt", "w")
 
+def formatCommonJSON(incoming):
+    # This is for getting rid of duplicate code
+    toReturn = ''
+
+def grabInformation(incomingSubreddit):
+    global jsonString
     global subredditCount
     subredditCount += 1
-    print('"subreddit'+ str(subredditCount) +'": {')
-    print('"name": "/r/' + incomingSubreddit +'",')
-    print('"all_posts": {')
+    jsonString += ('"subreddit'+ str(subredditCount) +'": {')
+    jsonString += ('"name": "/r/' + incomingSubreddit +'",')
+    jsonString += ('"all_posts": {')
     selectedReddit = reddit.subreddit(incomingSubreddit)
     for submission in selectedReddit.hot(limit=NUM_OF_POSTS_TO_GRAB):
         global submissionsCount
         submissionsCount += 1
 
-        print('"post'+ str(submissionsCount) +'": {')
+        jsonString += ('"post'+ str(submissionsCount) +'": {')
         # This is the actual meat of the post
-        print('"title":"' + str(submission.title) + '",')
-        print('"author":"' + str(submission.author) + '",')
-        print('"time":"' + str(submission.created) + '",')
-        print('"score":"' + str(submission.score) + '",')
-        print('"id":"' + str(submission.id) + '",')
-        print('"url":"' + str(submission.url) + '",')
+        jsonString += ('"title":"' + str(submission.title) + '",')
+        jsonString += ('"author":"' + str(submission.author) + '",')
+        jsonString += ('"time":"' + str(submission.created) + '",')
+        jsonString += ('"score":"' + str(submission.score) + '",')
+        jsonString += ('"id":"' + str(submission.id) + '",')
+        jsonString += ('"url":"' + str(submission.url) + '",')
         submission.comments.replace_more(limit=0)
-        print('"all_comments": {')
+        jsonString += ('"all_comments": {')
         for top_level_comment in submission.comments:
             global topCommentCount
             topCommentCount += 1
 
-            print('"comment'+ str(topCommentCount) +'": {')
+            jsonString += ('"comment'+ str(topCommentCount) +'": {')
 
-            print('"author":"' + str(top_level_comment.author) +'",')
-            print('"time":"' + str(top_level_comment.created) + '",')
-            print('"score":"' + str(top_level_comment.score) + '",')
-            print('"id":"' + str(top_level_comment.id) + '",')
+            jsonString += ('"author":"' + str(top_level_comment.author) +'",')
+            jsonString += ('"time":"' + str(top_level_comment.created) + '",')
+            jsonString += ('"score":"' + str(top_level_comment.score) + '",')
+            jsonString += ('"id":"' + str(top_level_comment.id) + '",')
             formattedBody = top_level_comment.body.replace("'", "")
             formattedBody = formattedBody.replace('"', '')
             formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
-            print('"body":" ' + str(formattedBody) + ' ",')
-            print('"second_level_comments": {')
+            jsonString += ('"body":" ' + str(formattedBody) + ' ",')
+            jsonString += ('"second_level_comments": {')
             if len(top_level_comment.replies) == 0:
-                print('}')
+                jsonString += ('}')
             for second_level_comment in top_level_comment.replies:
                 global secondCommentCount
                 secondCommentCount += 1
 
-                print('"comment' + str(secondCommentCount) + '": {')
+                jsonString += ('"comment' + str(secondCommentCount) + '": {')
 
-                print('"author":"' + str(second_level_comment.author) + '",')
-                print('"time":"' + str(second_level_comment.created) + '",')
-                print('"score":"' + str(second_level_comment.score) + '",')
-                print('"id":"' + str(second_level_comment.id) + '",')
+                jsonString += ('"author":"' + str(second_level_comment.author) + '",')
+                jsonString += ('"time":"' + str(second_level_comment.created) + '",')
+                jsonString += ('"score":"' + str(second_level_comment.score) + '",')
+                jsonString += ('"id":"' + str(second_level_comment.id) + '",')
                 formattedBody = second_level_comment.body.replace("'", "")
                 formattedBody = formattedBody.replace('"', '')
                 formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
-                print('"body":" ' + str(formattedBody) + ' ",')
-                print('"third_level_comments": {')
+                jsonString += ('"body":" ' + str(formattedBody) + ' ",')
+                jsonString += ('"third_level_comments": {')
                 if len(second_level_comment.replies) == 0:
-                    print('}')
+                    jsonString += ('}')
                 for third_level_comment in second_level_comment.replies:
                     global thirdCommentCount
                     thirdCommentCount += 1
 
-                    print('"comment' + str(thirdCommentCount) + '": {')
+                    jsonString += ('"comment' + str(thirdCommentCount) + '": {')
 
-                    print('"author":"' + str(third_level_comment.author) + '",')
-                    print('"time":"' + str(third_level_comment.created) + '",')
-                    print('"score":"' + str(third_level_comment.score) + '",')
-                    print('"id":"' + str(third_level_comment.id) + '",')
+                    jsonString += ('"author":"' + str(third_level_comment.author) + '",')
+                    jsonString += ('"time":"' + str(third_level_comment.created) + '",')
+                    jsonString += ('"score":"' + str(third_level_comment.score) + '",')
+                    jsonString += ('"id":"' + str(third_level_comment.id) + '",')
                     formattedBody = third_level_comment.body.replace("'", "")
                     formattedBody = formattedBody.replace('"', '')
                     formattedBody = formattedBody.replace('\n', '').replace('\r', '').replace('\\', '\\\\')
-                    print('"body":" ' + str(formattedBody) + ' "')
+                    jsonString += ('"body":" ' + str(formattedBody) + ' "')
                     if thirdCommentCount == len(second_level_comment.replies):
-                        print('}}')
+                        jsonString += ('}}')
                         thirdCommentCount = 0
                     else:
-                        print('},')
+                        jsonString += ('},')
                 #
                 if secondCommentCount == len(top_level_comment.replies):
-                    print('}}')
+                    jsonString += ('}}')
                     secondCommentCount = 0
                 else:
-                    print('},')
+                    jsonString += ('},')
             if topCommentCount == len(submission.comments):
-                print('}')
+                jsonString += ('}')
                 topCommentCount = 0
             else:
-                print('},')
+                jsonString += ('},')
         if(submissionsCount == NUM_OF_POSTS_TO_GRAB):
-            print('}}')
+            jsonString += ('}}')
             submissionsCount = 0
         else:
-            print('}},')
+            jsonString += ('}},')
     # The array used in this needs to be the same as the one in the while loop
     if subredditCount == len(SELECTED_SUBREDDITS):
-        print('}}')
+        jsonString += ('}}')
     else:
-        print('}},')
+        jsonString += ('}},')
 
 
 while True:
-    print("{")
-    print('"Reddit_Object":[')
-    print("{")
+    jsonString += ("{")
+    jsonString += ('"Reddit_Object":[')
+    jsonString += ("{")
     for sub in SELECTED_SUBREDDITS:
         grabInformation(sub)
-    print('}]}')
+    jsonString += ('}]}')
+    file = open(SAVE_FILE_PATH + str(round(time.time())) + ".txt", "w")
+    file.write(str(jsonString))
+    file.close()
+    print(str(round(time.time())) + " finished")
+    jsonString = ''
     time.sleep(SCHEDULE_TIME -((time.time() - starttime) % SCHEDULE_TIME))

@@ -2,7 +2,7 @@ import praw as praw
 from praw.models import MoreComments
 import os
 import sys
-import sched, time
+import time
 
 #gets shit from other classes when Test.py exists outside of src
 sys.path.append(os.path.join(sys.path[0], 'src'))

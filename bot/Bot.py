@@ -3,6 +3,8 @@ import datetime
 from random import randint
 import time
 
+# We need to keep track of what posts we've already viewed so that we don't view them twice.
+
 # This is 9 AM
 ACTIVE_HOUR_START = 32400
 # This is 5 PM
@@ -13,9 +15,6 @@ reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      password='TeamHandsome',
                      user_agent='Test script by /u/EverestAtlas',
                      username='EverestAtlas')
-
-# for submission in reddit.front.hot():
-#     print(submission.title)
 
 
 def should_upvote_post():

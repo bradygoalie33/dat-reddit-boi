@@ -14,6 +14,8 @@ ACTIVE_HOUR_START = 32400
 # This is 10 PM (Using this for working while I'm at home)
 ACTIVE_HOUR_END = 79200
 
+DEBUG = True
+
 reddit = praw.Reddit(client_id='El479iqdfj-v0g',
                      client_secret='_2lWTM5i_USFV4Aynn_k_p-ySOo',
                      password='TeamHandsome',
@@ -60,12 +62,16 @@ def how_many_comments_to_view(total_top_comments):
 def sleep_between_comment_views():
     sleep_time = randint(0, 5)
     print('comment sleep: ' + str(sleep_time))
+    if DEBUG:
+        return 0
     return sleep_time
 
 
 def sleep_between_post_views():
     sleep_time = randint(0, 20)
     print("post sleep: " + str(sleep_time))
+    if DEBUG:
+        return 0
     return sleep_time
 
 
@@ -73,6 +79,8 @@ def sleep_between_viewing_sessions():
     sleep_time = randint(10, 120)
     sleep_time = sleep_time * 60
     print("view sleep: " + str(sleep_time))
+    if DEBUG:
+        return 0
     return sleep_time
 
 
@@ -104,14 +112,17 @@ def view_post(post):
             for comment_num in range(how_many_comments_to_view(len(top_level_comment_array))):
                 view_comment(top_level_comment_array[comment_num])
                 time.sleep(sleep_between_comment_views())
-
+        else:
+            print("VIEW SKIP")
         time.sleep(sleep_between_post_views())
+    else:
+        print("ALREADY VIEWED")
 
 
 def get_frontpage_of_all():
     submission_array = []
     selected_subreddit = reddit.subreddit('all')
-    for submission in selected_subreddit.hot(limit=100):
+    for submission in selected_subreddit.hot(limit=150):
         submission_array.append(submission)
     return submission_array
 
@@ -124,18 +135,19 @@ while True:
 
     unformatted_view_time = randint(0, 15)
     view_time = unformatted_view_time * 60
-    end_of_viewing_session = current_time_in_seconds + view_time
+    if DEBUG:
+        end_of_viewing_session = current_time_in_seconds + 15
+    else:
+        end_of_viewing_session = current_time_in_seconds + view_time
 
     if ACTIVE_HOUR_START < current_time_in_seconds < ACTIVE_HOUR_END:
         submissions = get_frontpage_of_all()
         for post in submissions:
             now = datetime.datetime.now()
-            midnight = datetime.datetime.combine(now.date(), datetime.time())
             current_time = (now - midnight).seconds
             if current_time < end_of_viewing_session:
                 view_post(post)
             else:
                 print('time is up')
-                time.sleep(sleep_between_viewing_sessions())
                 break
         time.sleep(sleep_between_viewing_sessions())

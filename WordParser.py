@@ -3,9 +3,10 @@ import json
 API_KEY = 'J2YBhFl7nOmshtfhApDXZrqLIg3Gp1XVUOCjsnG6JYVznDzok6'
 # https://wordsapiv1.p.mashape.com/words/example/definitions
 # test_file_object = open('/Users/bradygroharing/DatRedditBoi/wordlists/testWords.txt', 'U')
-file_object  = open('/Users/bradygroharing/DatRedditBoi/wordlist/google-10000-english-usa-no-swears-short.txt', 'r')
-write_file = open('/Users/bradygroharing/DatRedditBoi/wordlist/shortWords.txt', 'w')
-error_file = open('/Users/bradygroharing/DatRedditBoi/wordlist/shortErrors.txt', 'w')
+user_file_path = '/Users/bradygroharing/DatRedditBoi/wordlist/'
+file_object  = open(user_file_path + 'google-10000-english-usa-no-swears-short.txt', 'r')
+write_file = open(user_file_path + 'shortWords.txt', 'w')
+error_file = open(user_file_path + 'shortErrors.txt', 'w')
 
 #
 for line in file_object:

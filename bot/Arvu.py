@@ -2,14 +2,21 @@ import praw as praw
 import datetime
 from random import randint
 import time
-
-# We need to keep track of what posts we've already viewed so that we don't view them twice.
-
-# This is 9 AM
 from praw.models import MoreComments
 
+
+PERCENTAGE_TO_UPVOTE_POST = 10
+PERCENTAGE_TO_DOWNVOTE_POST = 2
+PERCENTAGE_TO_UPVOTE_COMMENT = 10
+PERCENTAGE_TO_DOWNVOTE_COMMENT = 8
+PERCENTAGE_TO_VIEW_POST = 80
+
+# This one is 1/3 of int
+PERCENTAGE_TO_SAVE_POST = 1
+
+# This is 9 AM
 ACTIVE_HOUR_START = 32400
-# This is 5 PM
+# This is 5 PM (Using this for normal bot behavior
 # ACTIVE_HOUR_END = 61200
 # This is 10 PM (Using this for working while I'm at home)
 ACTIVE_HOUR_END = 79200
@@ -27,28 +34,43 @@ viewed_posts = []
 
 def should_save_post():
     percent_chance = randint(0, 300)
-    if percent_chance == 1:
+    if percent_chance == PERCENTAGE_TO_SAVE_POST:
         return True
     return False
 
 
 def should_upvote_post():
     percent_chance = randint(0, 100)
-    if percent_chance <= 10:
+    if percent_chance <= PERCENTAGE_TO_UPVOTE_POST:
+        return True
+    return False
+
+
+def should_downvote_post():
+    percent_chance = randint(0, 100)
+    if percent_chance <= PERCENTAGE_TO_DOWNVOTE_POST:
         return True
     return False
 
 
 def should_upvote_comment():
     percent_chance = randint(0, 100)
-    if percent_chance <= 30:
+    if percent_chance <= PERCENTAGE_TO_UPVOTE_COMMENT:
         return True
     return False
 
 
+def should_downvote_comment():
+    percent_chance = randint(0, 100)
+    if percent_chance <= PERCENTAGE_TO_DOWNVOTE_COMMENT:
+        return True
+    return False
+
+
+
 def should_view_post():
     percent_chance = randint(0, 100)
-    if percent_chance >= 20:
+    if percent_chance <= PERCENTAGE_TO_VIEW_POST:
         return True
     return False
 
@@ -88,6 +110,8 @@ def view_comment(comment):
     print(comment.body)
     if should_upvote_comment():
         print("SHOULD UPVOTE COMMENT")
+    elif should_downvote_comment():
+        print("SHOULD DOWNVOTE COMMENT")
 
 
 def view_post(post):
@@ -98,6 +122,8 @@ def view_post(post):
             viewed_posts.append(post.id)
             if should_upvote_post():
                 print("SHOULD UPVOTE POST")
+            elif should_downvote_post():
+                print("SHOULD DOWNVOTE POST")
             if should_save_post():
                 print("SHOULD SAVE POST!!")
             top_level_comment_array = []

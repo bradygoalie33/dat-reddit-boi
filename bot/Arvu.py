@@ -4,6 +4,12 @@ from random import randint
 import time
 from praw.models import MoreComments
 
+# After a viewing session I want to log the posts and comments Arvu viewed so that if he goes down he can keep track of
+# what he's already looked at.
+#       Along with that we'll need an init so that he can read that file and throw those posts into his viewed_posts
+#       Also along with that he needs comment viewing validation
+# After a viewing session I want Arvu to log information about what he's done.
+#   ex: length of session, start/end of session, num of posts/comments viewed, upvotes, downvotes, saves
 
 PERCENTAGE_TO_UPVOTE_POST = 10
 PERCENTAGE_TO_DOWNVOTE_POST = 2
@@ -76,7 +82,7 @@ def should_view_post():
 
 
 def how_many_comments_to_view(total_top_comments):
-    num_of_comments = randint(0, round(total_top_comments/4))
+    num_of_comments = randint(0, round(total_top_comments/5))
     print('numToView: ' + str(num_of_comments))
     return num_of_comments
 
@@ -110,8 +116,10 @@ def view_comment(comment):
     print(comment.body)
     if should_upvote_comment():
         print("SHOULD UPVOTE COMMENT")
+        return True
     elif should_downvote_comment():
         print("SHOULD DOWNVOTE COMMENT")
+    return False
 
 
 def view_post(post):
@@ -132,11 +140,12 @@ def view_post(post):
                 if isinstance(top_level_comment, MoreComments):
                     continue
                 top_level_comment_array.append(top_level_comment)
-                for second_level_comment in top_level_comment.replies:
-                    second_level_comment_array.append(second_level_comment)
 
             for comment_num in range(how_many_comments_to_view(len(top_level_comment_array))):
-                view_comment(top_level_comment_array[comment_num])
+                did_upvote = view_comment(top_level_comment_array[comment_num])
+                if did_upvote:
+                    if(len(top_level_comment_array[comment_num].replies) > 0):
+                        view_comment(top_level_comment_array[comment_num].replies[0])
                 time.sleep(sleep_between_comment_views())
         else:
             print("VIEW SKIP")
